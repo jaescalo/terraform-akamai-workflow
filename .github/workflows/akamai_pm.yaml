@@ -42,9 +42,9 @@ jobs:
       # Get any values required by TF. For example key ID stored in Akamai Cloud Access Manager
       - name: Get CAM key GUID
         run: |
-          export CAM_KEY_ID=$(grep 'cam_key_id' ./environments/$ENV.tfvars | awk -F'"' '{print $2}')
+          export CAM_KEY_ID=$(grep 'cam_key_id' environments/$ENV.tfvars | awk -F'"' '{print $2}')
           # Get the latest active in production CAM key GUID. 
-          echo -e "\n$(python3 ./scripts/ak_get_cam_key_guid.py $CAM_KEY_ID)" >> ./environments/$ENV.tfvars
+          echo -e "\n$(python3 ./scripts/ak_get_cam_key_guid.py $CAM_KEY_ID)" >> environments/$ENV.tfvars
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -53,7 +53,7 @@ jobs:
       - name: Add Linode S3 Backend for Terraform
         run: |
           echo $TF_VAR_activation_notes
-          cat << EOF > ./backend
+          cat << EOF > backend
           skip_credentials_validation=true
           skip_region_validation=true
           bucket="${{ secrets.LINODE_OBJECT_STORAGE_BUCKET }}"
