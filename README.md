@@ -41,14 +41,6 @@ After running the above all the necessary terraform files will be created plus t
 Optionally (but highly recommended), a remote backed to store the Terraform state file is recommended. For testing and experimenting it is okay to keep the state file locally though. 
 For this demo an S3 compatible [Linode Object Storage](https://www.linode.com/lp/object-storage/) bucket was setup to store Terraform's state file. 
 
-## Rule Tree Artifact
-Once the new property version has been pushed out to Akamai the rule tree is downloaded via the API in a Python script (look under `./scripts`). The rule tree is automatically commited under `./dist` and also stored as an artifact in the workflow run.
-
-The reason why the rule tree is commited back is because the rule tree that represents the current state in production can be referenced by other applications for other workflows or use cases. The particular use case for this repository is to use this rule tree for comparison if a change to the property occurred outside of the current workflow.
-
-### Why not use the Akamai PM CLI?
-Different tools may output slightly different rule tree structures (e.g. the order of some JSON elements), whether you use Terraform, Akamai CLI, scripting or the API direclty. To standarize the output a simple Python script will be used. 
-
 ## GitHub Workflow Setup
 For this demo, temporary Akamai API Credentials credentials are stored as Secret Repository variables. The naming convention for the variables used is:
 
