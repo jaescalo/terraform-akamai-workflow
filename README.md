@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/Terraform-v1.8.4-blueviolet.svg?style=plastic)
+![](https://img.shields.io/badge/Terraform-v1.4.7-blueviolet.svg?style=plastic)
 ![](https://img.shields.io/badge/Akamai--Provider-v6.1.0-orange.svg?style=plastic)
 ![](https://img.shields.io/badge/Linode--Provider-v2.20.1-green.svg?style=plastic)
 
