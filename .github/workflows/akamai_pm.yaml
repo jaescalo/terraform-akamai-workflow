@@ -42,8 +42,11 @@ jobs:
       # Get any values required by TF. For example key ID stored in Akamai Cloud Access Manager
       - name: Get CAM key GUID
         run: |
+          ls -l
           export CAM_KEY_ID=$(grep 'cam_key_id' environments/$ENV.tfvars | awk -F'"' '{print $2}')
           # Get the latest active in production CAM key GUID. 
+          cat environments/dev.tfvars
+          cat environments/$ENV.tfvars
           echo -e "\n$(python3 ./scripts/ak_get_cam_key_guid.py $CAM_KEY_ID)" >> environments/$ENV.tfvars
 
       - name: Setup Terraform
