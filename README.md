@@ -1,20 +1,18 @@
-![](https://img.shields.io/badge/Terraform-v1.4.7-blueviolet.svg?style=plastic)
-![](https://img.shields.io/badge/Akamai--Provider-v6.1.0-orange.svg?style=plastic)
-![](https://img.shields.io/badge/Linode--Provider-v2.20.1-green.svg?style=plastic)
+[![Akamai Property Manager](https://github.com/jaescalo/akamai-pm-tf-multiple-env-workflow/actions/workflows/akamai_pm.yaml/badge.svg)](https://github.com/jaescalo/akamai-pm-tf-multiple-env-workflow/actions/workflows/akamai_pm.yaml)
 
-# Akamai PM: Terraform | Linode S3 | Auto Commit Rule Tree
+# Terraform Property Manager Multiple Environments Template
 
-This is a demo on how to manage existing Akamai properties as code by leveraging the [Akamai Terraform Provider](https://techdocs.akamai.com/terraform/docs) in a GitHub Workflow. 
+The purpose of this template is to ease the process of managing multiple environment properties (e.g. dev, qa, stage, prod) in Terraform by leveraging the [Akamai Terraform Provider](https://techdocs.akamai.com/terraform/docs) in a GitHub Workflow. 
 
 * GitHub Actions used to run the workflow that executes Terraform to update the Akamai Property.
+* A Python script gets a Cloud Access Manager Key ID. This step is **optional**.
 * Terraform's state file is stored remotely in Linode's Object Storage (S3 compatible).
 * Terraform updates and activates a property based on the changes performed to the rule tree. 
-* The akamai/shell Docker Image is used to run a Python script that downloads the final rule tree from Akamai Property Manager. This rule tree is the JSON representation of the rule tree and is commited back to the repository and saved as an artifact.
 
 ## Prerequisites
 - [Akamai API Credentials](https://techdocs.akamai.com/developer/docs/set-up-authentication-credentials). Also familiarize with concepts related to the `.edgerc` file.
+- [Make Your First API Call with Python](https://techdocs.akamai.com/developer/docs/python)
 - [Akamai Terraform Provider](https://techdocs.akamai.com/terraform/docs)
-- [Akamai Docker Images](https://hub.docker.com/u/akamai/)
 - Basic Understanding of [GitHub Actions](https://docs.github.com/en/actions) and setting up [secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
 - [Linode Object Storage](https://www.linode.com/lp/object-storage/) bucket with Access Keys created for storing Terraform's state file.
  
@@ -23,8 +21,8 @@ Perhaps the most important step is to prepare the target properties for manageme
 
 * The code should be based on a production property (i.e. www.example.com NOT qa.example.com)
 * If desired, perform a configuration clean-up (i.e. remove duplicated rules/behaviors, parameterize behaviors/matches, etc) which can help reduce the code length.
-* All advanced rules and matches need to be converted first to [Akamai Custom Behaviors](https://developer.akamai.com/blog/2018/04/26/custom-behaviors-property-manager-papi) or to the Property Manager behaviors/matches if possible. If there is an advanced override section this can also be converted to a custom advanced override.
-* Freeze the rule tree to a specific version to avoid future catalog updates that could turn the current Akamai as Code incompatible.
+* All advanced rules and matches need to be converted first to [Akamai Custom Behaviors](https://techdocs.akamai.com/property-mgr/reference/custom-behaviors-and-overrides) or to the Property Manager behaviors/matches if possible. If there is an advanced override section this can also be converted to a custom advanced override.
+* As of May 2024, freeze the rule tree to a specific version to avoid future catalog updates that could turn the current Akamai as Code incompatible.
 * Avoid code drift by changes made outside the Akamai as Code flow and develop new processes to make sure your code is fully up to date and the single source of truth
 
 ### Terraform Declarative Property Manager
@@ -37,9 +35,14 @@ akamai terraform export-property --rules-as-hcl <property-name>
 ```
 After running the above all the necessary terraform files will be created plus the `import.sh` file. The latter can be used to import existing resources in Akamai into Terraform's state. 
 
+### Additional Inputs for TF
+This step is optional, however it represents a common situation where information from other sources must be collected before it can be used in Terraform. The use case here is to query the Akamai Cloud Access Manager (CAM) for the Key ID via Akamai APIs in a Python script. 
+The Key ID then is used as input to the TF code to populate a field in the rule tree. This step is handy in this particular case because there is no CAM subprovider yet in TF.
+
 ## Linode Object Storage for TF Remote Backend
-Optionally (but highly recommended), a remote backed to store the Terraform state file is recommended. For testing and experimenting it is okay to keep the state file locally though. 
-For this demo an S3 compatible [Linode Object Storage](https://www.linode.com/lp/object-storage/) bucket was setup to store Terraform's state file. 
+This template uses an S3 compatible [Linode Object Storage](https://www.linode.com/lp/object-storage/) bucket to store Terraform's state file. However any other supported remote backend can be configured.
+
+This step is essential to the template as the environment parameterization within the code will result in different TF state files based on the environment. This is good because it also provides state file isolation per environment.
 
 ## GitHub Workflow Setup
 For this demo, temporary Akamai API Credentials credentials are stored as Secret Repository variables. The naming convention for the variables used is:
@@ -64,9 +67,11 @@ In the `.github/workflows/akamai_pm.yaml` these variables are referenced to buil
 * The Linode variables are used to build the Terraform's backend configuration which then is passed to TF during the `terraform init` command.
 
 ### GitHub Actions
-Two main GitHub actions play a role in this workflow:
+The following GitHub actions play a role in this workflow:
 - actions/checkout@v4: setup for git operations
-- hashicorp/setup-terraform@v2: setup for Terraform
+- py-actions/py-dependency-install@v4: setup Python script dependencies
+- hashicorp/setup-terraform@v3: setup for Terraform
+- actions/upload-artifact@v4: upload artifacts
 
 ## Import Existing Property
 Often times you want to manage an existing resource on Akamai via Terraform. For this to be successful the initial Terraform state must be created. This can be done by executing the `import.sh` script which runs the necessary `terraform import` commands for all the resources exported by the Akamai Terraform CLI.
@@ -74,10 +79,10 @@ Often times you want to manage an existing resource on Akamai via Terraform. For
 In the `.github/workflows/akamai_pm.yaml` you will find this step, however it is commented out, and the reason is because it was executed on the very first run just to get the Terraform state generated. After that initial run you can comment it out or just remove it from the GitHub workflow code.
 
 ## Resources
+- [Template Repository](https://github.com/jaescalo/akamai-pm-tf-multiple-env-workflow)
 - [Akamai API Credentials](https://techdocs.akamai.com/developer/docs/set-up-authentication-credentials)
 - [Akamai Terraform Provider](https://techdocs.akamai.com/terraform/docs)
 - [Akamai CLI for Terraform](https://github.com/akamai/cli-terraform)
 - [Linode Object Storage](https://www.linode.com/lp/object-storage/)
-- [Akamai Docker](https://github.com/akamai/akamai-docker)
 - [Akamai Developer Youtube Channel](https://www.youtube.com/c/AkamaiDeveloper)
 - [Akamai Github](https://github.com/akamai)
