@@ -52,17 +52,17 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.4.7
+          terraform_version: 1.9.0
       - name: Add Linode S3 Backend for Terraform
         run: |
-          echo $TF_VAR_activation_notes
           cat << EOF > backend
           skip_credentials_validation=true
           skip_region_validation=true
+          skip_requesting_account_id=true
           bucket="${{ secrets.LINODE_OBJECT_STORAGE_BUCKET }}"
           key="$ENV-terraform.tfstate"
           region="us-mia-1"
-          endpoint="us-mia-1.linodeobjects.com"
+          endpoint={ s3 = "https://us-mia-1.linodeobjects.com" }
           access_key="${{ secrets.LINODE_OBJECT_STORAGE_ACCESS_KEY }}"
           secret_key="${{ secrets.LINODE_OBJECT_STORAGE_SECRET_KEY }}"
           EOF

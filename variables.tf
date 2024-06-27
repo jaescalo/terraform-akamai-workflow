@@ -3,9 +3,12 @@ variable "akamai_host" {}
 variable "akamai_access_token" {}
 variable "akamai_client_token" {}
 variable "akamai_account_key" {}
-variable "version_notes" {}
 variable "cam_key_id" {}
 variable "cam_key_guid" {}
+variable "version_notes" {
+  type = string
+  default = "Tests Performed Locally"
+}
 
 # Variables in common to all environments
 variable "config_section" {

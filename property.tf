@@ -32,7 +32,14 @@ resource "akamai_property" "github-workflow-tf-demo" {
     cert_provisioning_type = "CPS_MANAGED"
   }
   rule_format = data.akamai_property_rules_builder.github-workflow-tf-demo_rule_default.rule_format
-  rules       = replace(data.akamai_property_rules_builder.github-workflow-tf-demo_rule_default.json, "\"rules\"", "\"comments\": \"${var.version_notes}\", \"rules\"")
+  rules       = data.akamai_property_rules_builder.github-workflow-tf-demo_rule_default.json
+  version_notes = var.version_notes
+  # Version notes depend on values that change on every commit. Ignoring notes as a valid change
+  lifecycle {
+    ignore_changes = [ 
+      version_notes,
+    ]
+  }
 }
 
 resource "akamai_property_activation" "github-workflow-tf-demo-staging" {
@@ -42,7 +49,8 @@ resource "akamai_property_activation" "github-workflow-tf-demo-staging" {
   network                        = "STAGING"
   note                           = var.version_notes
   auto_acknowledge_rule_warnings = true
-  # Activation notes depend on values that change on every commit. Ignoring notes as change
+  
+  # Activation notes depend on values that change on every commit. Ignoring notes as a valid change
   lifecycle {
     ignore_changes = [
       note,
@@ -57,7 +65,8 @@ resource "akamai_property_activation" "github-workflow-tf-demo-production" {
   network                        = "PRODUCTION"
   note                           = var.version_notes
   auto_acknowledge_rule_warnings = true
-  # Activation notes depend on values that change on every commit. Ignoring notes as change
+
+  # Activation notes depend on values that change on every commit. Ignoring notes as valid change
   lifecycle {
     ignore_changes = [
       note,
