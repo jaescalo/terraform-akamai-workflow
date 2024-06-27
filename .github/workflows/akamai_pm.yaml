@@ -62,7 +62,7 @@ jobs:
           bucket="${{ secrets.LINODE_OBJECT_STORAGE_BUCKET }}"
           key="$ENV-terraform.tfstate"
           region="us-mia-1"
-          endpoint={ s3 = "https://us-mia-1.linodeobjects.com" }
+          endpoints={ s3 = "https://us-mia-1.linodeobjects.com" }
           access_key="${{ secrets.LINODE_OBJECT_STORAGE_ACCESS_KEY }}"
           secret_key="${{ secrets.LINODE_OBJECT_STORAGE_SECRET_KEY }}"
           EOF
