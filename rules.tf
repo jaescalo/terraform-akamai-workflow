@@ -115,7 +115,7 @@ data "akamai_property_rules_builder" "github-workflow-tf-demo_rule_completely_st
       file_extension {
         match_case_sensitive = false
         match_operator       = "IS_ONE_OF"
-        values               = ["mp4", "css", "gif", "jpg", "js", "png", "pict", "tif", "tiff", "mid", "midi", "ttf", "eot", "woff", "woff2", "otf", "svg", "svgz", "webp", "jxr", "class", "jar", "jp2", ]
+        values               = ["mp3", "mp4", "css", "gif", "jpg", "js", "png", "pict", "tif", "tiff", "mid", "midi", "ttf", "eot", "woff", "woff2", "otf", "svg", "svgz", "webp", "jxr", "class", "jar", "jp2", ]
       }
     }
     criterion {
