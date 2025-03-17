@@ -6,7 +6,7 @@ variable "akamai_account_key" {}
 variable "cam_key_id" {}
 variable "cam_key_guid" {}
 variable "version_notes" {
-  type = string
+  type    = string
   default = "Tests Performed Locally"
 }
 
@@ -38,12 +38,12 @@ variable "emails" {
 
 variable "activate_latest_on_staging" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "activate_latest_on_production" {
   type    = bool
-  default = true
+  default = false
 }
 
 # Environment specific variables

@@ -15,7 +15,7 @@ on:
       branches:
         - main
       paths:
-        - 'rules.tf'
+        - '$BASE_DIR/rules.tf'
 
 env:
   TF_VAR_akamai_client_secret: "${{ secrets.AKAMAI_CREDENTIAL_CLIENT_SECRET }}"
@@ -25,6 +25,7 @@ env:
   TF_VAR_akamai_account_key: "${{ secrets.AKAMAI_ACCOUNT_KEY}}"
   TF_VAR_version_notes: "${{ github.repository }} run #${{ github.run_number }} Commit ${{ github.sha }}"
   ENV: ${{ inputs.environment }}
+  BASE_DIR: "."
 
 jobs:
   tf-property-update:
@@ -37,17 +38,16 @@ jobs:
       - name: Install Python Dependencies
         uses: py-actions/py-dependency-install@v4
         with:
-          path: "./scripts/requirements.txt"
+          path: "$BASE_DIR/scripts/requirements.txt"
 
       # Get any values required by TF. For example key ID stored in Akamai Cloud Access Manager
       - name: Get CAM key GUID
         run: |
           ls -l
-          export CAM_KEY_ID=$(grep 'cam_key_id' environments/$ENV.tfvars | awk -F'"' '{print $2}')
+          export CAM_KEY_ID=$(grep 'cam_key_id' $BASE_DIR/environments/$ENV.tfvars | awk -F'"' '{print $2}')
           # Get the latest active in production CAM key GUID. 
-          cat environments/dev.tfvars
           cat environments/$ENV.tfvars
-          echo -e "\n$(python3 ./scripts/ak_get_cam_key_guid.py $CAM_KEY_ID)" >> environments/$ENV.tfvars
+          echo -e "\n$(python3 $BASE_DIR/scripts/ak_get_cam_key_guid.py $CAM_KEY_ID)" >> $BASE_DIR/environments/$ENV.tfvars
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -55,7 +55,7 @@ jobs:
           terraform_version: 1.9.0
       - name: Add Linode S3 Backend for Terraform
         run: |
-          cat << EOF > backend
+          cat << EOF > $BASE_DIR/backend
           skip_credentials_validation=true
           skip_region_validation=true
           skip_requesting_account_id=true
@@ -68,18 +68,18 @@ jobs:
           secret_key="${{ secrets.LINODE_OBJECT_STORAGE_SECRET_KEY }}"
           EOF
       - name: Terraform Init
-        run: terraform init -backend-config=backend
+        run: terraform init -backend-config=$BASE_DIR/backend
       # The import step is optional and used only once to import existing resources to TF. 
       # - name: Terraform Import
       #   run: sh import.sh $ENV
       - name: Terraform Validate 
-        run: terraform validate -no-color
+        run: terraform -chdir=$BASE_DIR validate -no-color
       - name: Terraform Apply Changes 
         run: |
-          terraform plan -var-file=./environments/$ENV.tfvars -out=tfplan  
-          terraform show -json tfplan > tfplan.json
+          terraform -chdir=$BASE_DIR plan -var-file=./environments/$ENV.tfvars -out=tfplan  
+          terraform -chdir=$BASE_DIR show -json tfplan > -chdir=$BASE_DIR/tfplan.json
       - name: Terraform Apply Changes 
-        run: terraform apply -var-file=./environments/$ENV.tfvars -auto-approve
+        run: terraform -chdir=$BASE_DIR apply -var-file=./environments/$ENV.tfvars -auto-approve
       - name: Store Rule Tree as Artifact
         uses: actions/upload-artifact@v4
         with:
