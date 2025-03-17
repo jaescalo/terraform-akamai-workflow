@@ -38,7 +38,7 @@ jobs:
       - name: Install Python Dependencies
         uses: py-actions/py-dependency-install@v4
         with:
-          path: "$BASE_DIR/scripts/requirements.txt"
+          path: "${{ env.BASE_DIR }}/scripts/requirements.txt"
 
       # Get any values required by TF. For example key ID stored in Akamai Cloud Access Manager
       - name: Get CAM key GUID
