@@ -138,7 +138,7 @@ data "akamai_property_rules_builder" "github-workflow-tf-demo_rule_completely_st
       caching {
         behavior        = "MAX_AGE"
         must_revalidate = false
-        ttl             = "10d"
+        ttl             = "11d"
       }
     }
   }
