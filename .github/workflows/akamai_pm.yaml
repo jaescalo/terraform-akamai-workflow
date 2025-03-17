@@ -77,7 +77,7 @@ jobs:
       - name: Terraform Apply Changes 
         run: |
           terraform -chdir=$BASE_DIR plan -var-file=./environments/$ENV.tfvars -out=tfplan  
-          terraform -chdir=$BASE_DIR show -json tfplan > -chdir=$BASE_DIR/tfplan.json
+          terraform -chdir=$BASE_DIR show -json tfplan > $BASE_DIR/tfplan.json
       - name: Terraform Apply Changes 
         run: terraform -chdir=$BASE_DIR apply -var-file=./environments/$ENV.tfvars -auto-approve
       - name: Store Rule Tree as Artifact
