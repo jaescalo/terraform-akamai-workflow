@@ -26,6 +26,8 @@ env:
   TF_VAR_version_notes: "${{ github.repository }} run #${{ github.run_number }} Commit ${{ github.sha }}"
   ENV: ${{ inputs.environment }}
   BASE_DIR: "."
+  # Work-around to support remote S3 backend on TF versions 1.11+
+  AWS_REQUEST_CHECKSUM_CALCULATION: "when_required"
 
 jobs:
   tf-property-update:
@@ -52,7 +54,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.12.1
       - name: Add Linode S3 Backend for Terraform
         run: |
           cat << EOF > $BASE_DIR/backend
